@@ -13,7 +13,7 @@ typedef struct Node {
 void print(Node* node) {
     if (node) {
         print(node->left);
-        cout << node->key << " " << node->height << endl;
+        cout << node->key << " ";
         print(node->right);
     }
 }
@@ -23,7 +23,7 @@ void print_2d(Node* node, int distance, int count) {
     distance += count;
 
     print_2d(node->right, distance, count);
-    cout << std::endl;
+    cout << endl;
     for (int i = count; i < distance; i++)
         cout << " ";
     cout << node->key << " (" << node->height << ")" << endl;
@@ -52,10 +52,10 @@ int get_balance(Node* node) {
 }
 
 Node* left_rotate(Node* x) {
-    Node* y = x->left;
-    Node* T = y->right;
-    x->left = T;
-    y->right = x;
+    Node* y = x->right;
+    Node* T = y->left;
+    x->right = T;
+    y->left = x;
 
     x->height = max(height(x->left), height(x->left)) + 1;
     y->height = max(height(y->left), height(y->left)) + 1;
@@ -64,10 +64,10 @@ Node* left_rotate(Node* x) {
 }
 
 Node* right_rotate(Node* x) {
-    Node* y = x->right;
-    Node* T = y->left;
-    x->right = T;
-    y->left = x;
+    Node* y = x->left;
+    Node* T = y->right;
+    x->left = T;
+    y->right = x;
 
     x->height = max(height(x->left), height(x->left)) + 1;
     y->height = max(height(y->left), height(y->left)) + 1;
@@ -87,23 +87,47 @@ Node* insert(Node* node, int key) {
     node->height = max(height(node->right), height(node->left)) + 1;
 
     int balance = get_balance(node);
-    if (balance > 1)
+    if (balance < -1) {
+        if (height(node->right->left) > height(node->right->right))
+            node->right = right_rotate(node->right);
         return left_rotate(node);
-    if (balance < -1)
+    }
+    if (balance > 1) {
+        if (height(node->left->right) > height(node->left->left))
+            node->right = right_rotate(node->right);
         return right_rotate(node);
+    }
 
     return node;
 }
 
 int main() {
     Node* root = nullptr;
-    root = insert(root, 10);
-    root = insert(root, 20);
-    root = insert(root, 30);
-    root = insert(root, 40);
-    root = insert(root, 50);
-    root = insert(root, 25);
+    string user_in;
 
-    print_2d(root, 0, 10);
+    while (cin >> user_in) {
+        int key;
+        if (user_in == "add") {
+            cin >> key;
+            root = insert(root, key);
+        }
+        if (user_in == "print") {
+            int num;
+            cin >> num;
+            switch (num) {
+                case 1:
+                    print(root);
+                    cout << endl;
+                    break;
+                case 2:
+                    print_2d(root, 0, 10);
+                    break;
+                default:
+                    print(root);
+                    break;
+            }
+        }
+    }
+
     return 0;
 }

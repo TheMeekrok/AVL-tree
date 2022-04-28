@@ -101,6 +101,49 @@ Node* insert(Node* node, int key) {
     return node;
 }
 
+Node* min_node(Node* node) {
+    while (node->left)
+        node = node->left;
+    return node;
+}
+
+Node* remove(Node* node, int key) {
+    if (!node)
+        return node;
+
+    if (key < node->key)
+        remove(node->left, key);
+    else if (key > node->key)
+        remove(node->right, key);
+    else {
+        //Если один или нет потомков
+        if (!node->left || !node->right) {
+            Node* temp = node->left ? node->left : node->right;
+
+            //Случай если нет потомков
+            if (!temp) {
+                temp = node;
+                node = nullptr;
+            }
+            //Еcли есть, то присваиваем его текущему узлу
+            else
+                *node = *temp;
+
+            //И очищаем память
+            delete temp;
+        }
+        else if (node->left && node->right) {
+            Node* temp = min_node(node->right);
+            node->key = temp->key;
+            node->right = remove(node->right, temp->key);
+        }
+    }
+
+    if (!node)
+        return node;
+    return node;
+}
+
 int main() {
     Node* root = nullptr;
     string user_in;
@@ -110,6 +153,13 @@ int main() {
         if (user_in == "add") {
             cin >> key;
             root = insert(root, key);
+        }
+        if (user_in == "remove") {
+            cin >> key;
+            root = remove(root, key);
+        }
+        if (user_in == "min_node") {
+            cout << min_node(root)->key << endl;
         }
         if (user_in == "print") {
             int num;
@@ -128,6 +178,5 @@ int main() {
             }
         }
     }
-
     return 0;
 }
